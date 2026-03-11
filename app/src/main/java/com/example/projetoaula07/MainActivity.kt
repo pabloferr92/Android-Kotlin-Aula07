@@ -6,10 +6,15 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
+import androidx.compose.foundation.gestures.DraggableState
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.draggable
+import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -23,16 +28,19 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateSetOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.example.projetoaula07.ui.theme.ProjetoAula07Theme
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlin.math.roundToInt
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -96,9 +104,12 @@ fun AlunoItem(index : Int,aluno: Aluno) {
 
     val scope = rememberCoroutineScope()
 
+    var offSetX by remember { mutableStateOf(0f) }
 
     Surface(
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .fillMaxWidth()
+            .offset { IntOffset(0, offSetX.roundToInt()) }
             .clickable {
 
                 scope.launch {
@@ -109,14 +120,18 @@ fun AlunoItem(index : Int,aluno: Aluno) {
 
                 }
             }
+            .draggable(orientation = Orientation.Vertical, enabled = true, state = rememberDraggableState {
+                delta -> offSetX += delta
+                offSetX = offSetX + delta
+            })
         ,
-
         shape = RoundedCornerShape(12.dp),
         tonalElevation = 3.dp
     ) {
         Column(
             modifier = Modifier
                 .padding(16.dp),
+
         ) {
             Text(
                 text = aluno.nome,
